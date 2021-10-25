@@ -1,13 +1,7 @@
 // recuperation of product id
 
-//let params = (new URL(document.location)).searchParams;
-//let id = params.get('id');
-//console.log(id);
-
 var parsedUrl = new URL(window.location.href);
 
-//Verify Id recuperation
-console.log(parsedUrl.searchParams.get("id"));
 
 // declare id
 let idProduct = parsedUrl.searchParams.get("id");
@@ -69,54 +63,87 @@ fetch(`http://localhost:3000/api/products/${idProduct}`)
     product = item
 })
 
-//I decalre product to inialise the number
+//I decalre product to inialise the number & add product null
 let product =null;
+let addProductButton = false;
+
 // i add a event on button and define a function addtobasket
+
 let button = document.querySelector('#addToCart')
 button.addEventListener('click', function(addToBasket) {
 
 
 //Find & catch informations
-const quantityItem = document.querySelector('#quantity').value;
-const colorItem = document.querySelector ('#colors').value;
+    let quantityItem = document.querySelector('#quantity').value;
+    const colorItem = document.querySelector ('#colors').value;
 
-// Verify the product
-if (product===null) {
-    return
-}
-if (colorItem === "null" || quantityItem === 0){
-    window.alert("Fucking customer, choose a color ! shit !!!! "); 
-}
+    const quantityItemParsed = parseInt(quantityItem, 10);
+    console.log (quantityItemParsed)
+    const priceParsed = parseInt(product.price, 10);
+    console.log (priceParsed)
 
-
-// existant basket ?
-let basket = localStorage.getItem ('basket');
-if (basket === null){
-    basket = [];
-}
-else {
-    basket = JSON.parse(basket);
-}
-
-
-//verify basket to say if i have already the same product and add quantity on the same product
-let allreadyInBasket = false;
-for (let i = 0; i < basket.length;i++){
-    if (basket[i].id === idProduct && basket[i].color === colorItem) {
-        allreadyInBasket = true;
-        basket[i].quantity += quantityItem;
+    // Verify the product
+    if (product===null) {
+        return
     }
-}
-//If not, product push in local storage
-if (allreadyInBasket === false && quantityItem!= 0) {
-    basket.push({
-        id: idProduct,
-        name: product.name,
-        color : colorItem,
-        quantity : quantityItem,
-    })
-}
-localStorage.setItem('basket', JSON.stringify(basket));
+    if (colorItem === ""){
+        window.alert("Customer, choose a color or die ☠️😁 !! "); 
+    }
+
+
+    // existant basket ?
+    let basket = localStorage.getItem ('basket');
+    if (basket === null){
+        basket = [];
+    }
+    else {
+        basket = JSON.parse(basket);
+    }
+
+
+    //verify basket to say if i have already the same product and add quantity on the same product
+    let allreadyInBasket = false;
+    for (let i = 0; i < basket.length;i++){
+        if (basket[i].id === idProduct && basket[i].color === colorItem) {
+            allreadyInBasket = true;
+            basket[i].quantity += quantityItemParsed;
+        }
+    }
+    //If not, product push in local storage
+    if (allreadyInBasket === false && colorItem!= "") {
+        basket.push({
+            id: idProduct,
+            name: product.name,
+            price : product.price,
+            color : colorItem,
+            quantity : quantityItemParsed,
+            imageUrl: product.imageUrl,
+
+        })
+
+
+    }
+    localStorage.setItem('basket', JSON.stringify(basket));
+
+
+
+    //Add button to see Basket
+    if (colorItem ==="" || addProductButton === true) {
+        return
+    }
+    else{
+
+        const myBasket = document.querySelector('#seeButton');
+        const myBasketButton = document.createElement('button');
+        myBasketButton.innerHTML ="Voir mon panier";
+        const linkMyBasket = document.createElement ('a');
+        linkMyBasket.href = `./cart.html`;
+
+        addProductButton = true;
+
+        linkMyBasket.appendChild(myBasketButton);
+        myBasket.appendChild(linkMyBasket);
+    }
 
 })
 
